@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stations — Admin TrainMS</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+</head>
+<body>
+  <div class="bg-noise"></div>
+  <div class="page-wrapper">
+
+    <nav class="navbar">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="brand-icon">🚂</div>
+        <span class="brand-name">Train<em>MS</em></span>
+        <span class="badge badge-blue" style="font-size:.65rem;">ADMIN</span>
+      </a>
+      <div class="navbar-actions">
+        <div id="navUser"></div>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm">Logout</button>
+      </div>
+    </nav>
+
+    <div class="with-sidebar">
+      <aside class="sidebar">
+        <div class="sidebar-label">Overview</div>
+        <a href="dashboard.html" class="sidebar-item"><span class="si-icon">📊</span>Dashboard</a>
+        <div class="sidebar-label">Management</div>
+        <a href="trains.html"   class="sidebar-item"><span class="si-icon">🚂</span>Trains</a>
+        <a href="stations.html" class="sidebar-item active"><span class="si-icon">🚉</span>Stations</a>
+        <a href="seats.html"    class="sidebar-item"><span class="si-icon">💺</span>Seats</a>
+        <div class="sidebar-label">Reports</div>
+        <a href="users.html"    class="sidebar-item"><span class="si-icon">👥</span>Users</a>
+        <a href="bookings.html" class="sidebar-item"><span class="si-icon">🎫</span>Bookings</a>
+      </aside>
+
+      <main class="main-area">
+        <div class="page-head-row">
+          <div>
+            <h1 class="page-title">Stations 🚉</h1>
+            <p class="page-sub">Manage railway stations</p>
+          </div>
+          <button id="addStationBtn" class="btn btn-primary">+ Add Station</button>
+        </div>
+
+        <div class="table-box">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Station Name</th>
+                <th>Code</th>
+                <th>City</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="stBody"></tbody>
+          </table>
+          <div id="stEmpty" class="empty hidden">
+            <div class="empty-icon">🚉</div>
+            <div class="empty-title">No stations added yet</div>
+            <div class="empty-text">Add your first station to get started</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Template: Station Table Row -->
+  <template id="tpl-station-row">
+    <tr>
+      <td style="color:var(--text-muted); font-family:var(--mono); font-size:.8rem;"
+          data-f="idx"></td>
+      <td style="font-weight:500;" data-f="name"></td>
+      <td>
+        <span class="badge badge-blue" style="font-family:var(--mono);"
+              data-f="code"></span>
+      </td>
+      <td style="color:var(--text-secondary);" data-f="city"></td>
+      <td>
+        <div style="display:flex; gap:7px;">
+          <button class="btn btn-ghost btn-sm btn-edit">✏️ Edit</button>
+          <button class="btn btn-danger btn-sm btn-del">🗑️</button>
+        </div>
+      </td>
+    </tr>
+  </template>
+
+  <!-- Add/Edit Station Modal -->
+  <div class="modal-overlay" id="stMod">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-head">
+        <h2 class="modal-title" id="stModTitle">Add Station</h2>
+        <button class="modal-close" data-close="stMod">✕</button>
+      </div>
+      <form id="stForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="stName">
+            Station Name <span style="color:var(--error)">*</span>
+          </label>
+          <input id="stName" class="form-control"
+                 placeholder="e.g. New Delhi" required/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="stCode">
+              Station Code <span style="color:var(--error)">*</span>
+            </label>
+            <input id="stCode" class="form-control"
+                   placeholder="e.g. NDLS" maxlength="10"
+                   style="text-transform:uppercase; font-family:var(--mono);"
+                   pattern="[A-Z0-9]+" required/>
+            <p class="form-hint">Uppercase letters and numbers only</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="stCity">
+              City <span style="color:var(--error)">*</span>
+            </label>
+            <input id="stCity" class="form-control"
+                   placeholder="e.g. New Delhi" required/>
+          </div>
+        </div>
+        <div id="stAlert"></div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" data-close="stMod">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="stSaveBtn">
+            <span class="btn-text">Save Station</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Station Modal -->
+  <div class="modal-overlay" id="delMod">
+    <div class="modal" style="max-width:360px;">
+      <div class="modal-head">
+        <h2 class="modal-title">Delete Station</h2>
+        <button class="modal-close" data-close="delMod">✕</button>
+      </div>
+      <div class="alert alert-error">
+        ⚠️ Delete this station? This cannot be undone.
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="delMod">Cancel</button>
+        <button class="btn btn-danger" id="delBtn">
+          <span class="btn-text">Delete</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/pages/admin/stations.js"></script>
+</body>
+</html>

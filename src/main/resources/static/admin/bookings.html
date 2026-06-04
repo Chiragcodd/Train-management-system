@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Bookings — Admin</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+</head>
+<body>
+  <div class="bg-noise"></div>
+  <div class="page-wrapper">
+
+    <nav class="navbar">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="brand-icon">🚂</div>
+        <span class="brand-name">Train<em>MS</em></span>
+        <span class="admin-tag">ADMIN</span>
+      </a>
+      <div class="navbar-actions">
+        <div id="navUser"></div>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm">Logout</button>
+      </div>
+    </nav>
+
+    <div class="with-sidebar">
+      <aside class="sidebar">
+        <div class="sidebar-label">Overview</div>
+        <a href="dashboard.html" class="sidebar-item"><span class="si-icon">📊</span>Dashboard</a>
+        <div class="sidebar-label">Management</div>
+        <a href="trains.html"   class="sidebar-item"><span class="si-icon">🚂</span>Trains</a>
+        <a href="stations.html" class="sidebar-item"><span class="si-icon">🚉</span>Stations</a>
+        <a href="seats.html"    class="sidebar-item"><span class="si-icon">💺</span>Seats</a>
+        <div class="sidebar-label">Reports</div>
+        <a href="users.html"    class="sidebar-item"><span class="si-icon">👥</span>Users</a>
+        <a href="bookings.html" class="sidebar-item active"><span class="si-icon">🎫</span>All Bookings</a>
+      </aside>
+
+      <main class="main-area">
+        <div class="page-head-row">
+          <div>
+            <div class="page-title">All Bookings 🎫</div>
+            <div class="page-sub">System-wide booking management</div>
+          </div>
+          <span id="totalB" class="badge badge-blue"
+                style="font-size:.8rem; padding:5px 12px;"></span>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active"  data-filter="ALL">All</button>
+          <button class="tab" data-filter="PENDING_PAYMENT">Pending Payment</button>
+          <button class="tab" data-filter="CONFIRMED">Confirmed</button>
+          <button class="tab" data-filter="WAITLISTED">Waitlisted</button>
+          <button class="tab" data-filter="CANCELLED">Cancelled</button>
+          <button class="tab" data-filter="EXPIRED">Expired</button>
+        </div>
+
+        <div class="table-box" id="bkTable">
+          <div class="empty"><div class="spinner spinner-lg"></div></div>
+        </div>
+        <div id="pagination"></div>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal" style="max-width:360px;">
+      <div class="modal-head">
+        <h2 class="modal-title">Logout</h2>
+        <button class="modal-close" data-close="logoutModal">✕</button>
+      </div>
+      <p style="padding:0 4px 16px; color:var(--text-muted);">Are you sure you want to log out?</p>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="logoutModal">Cancel</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/pages/admin/bookings.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Book Ticket — TrainMS</title>
+  <link rel="stylesheet" href="css/variables.css"/>
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+</head>
+<body>
+  <div class="bg-noise"></div>
+  <div class="page-wrapper">
+
+    <nav class="navbar">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="brand-icon">🚂</div>
+        <span class="brand-name">Train<em>MS</em></span>
+      </a>
+      <div class="navbar-actions">
+        <div id="navUser"></div>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm">Logout</button>
+      </div>
+    </nav>
+
+    <div class="container-md" style="margin-top:8px;">
+
+      <nav class="breadcrumb">
+        <a href="search.html">Search</a>
+        <span class="sep">›</span>
+        <span class="cur">Book Ticket</span>
+      </nav>
+
+      <div class="page-head">
+        <h1 class="page-title">Book Your Ticket 🎫</h1>
+        <p class="page-sub">Fill passenger details to confirm your journey</p>
+      </div>
+
+      <!-- Journey Summary -->
+      <div class="card card-accent" style="margin-bottom:20px;">
+        <h3 class="section-title">Journey Details</h3>
+        <div class="form-row">
+          <div>
+            <div class="form-label">Train</div>
+            <div id="sumTrain" style="font-size:1rem; font-weight:600;">—</div>
+          </div>
+          <div>
+            <div class="form-label">Route</div>
+            <div id="sumRoute"
+                 style="font-size:1rem; font-weight:700;
+                        color:var(--blue); font-family:var(--mono);">—</div>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:8px;">
+          <div>
+            <div class="form-label">Travel Date</div>
+            <div id="sumDate" style="font-weight:600;">—</div>
+          </div>
+          <div>
+            <div class="form-label">Coach</div>
+            <div id="sumCoach">—</div>
+          </div>
+        </div>
+        <!-- Fare preview section -->
+        <div id="farePreview" class="hidden" style="margin-top:12px;
+             padding:10px 14px; background:var(--bg-elevated);
+             border-radius:10px; border:1px solid var(--border);">
+          <div style="font-size:.78rem; color:var(--text-muted); margin-bottom:4px;">
+            Estimated Fare
+          </div>
+          <div id="fareText" style="font-size:.9rem; color:var(--blue); font-weight:600;"></div>
+        </div>
+      </div>
+
+      <!-- Booking Form -->
+      <div class="card">
+        <form id="bookForm" novalidate>
+
+          <!-- Coach Type -->
+          <div class="form-group">
+            <label class="form-label" for="coachType">Coach Type</label>
+            <select id="coachType" class="form-control" required>
+              <option value="">Select coach class</option>
+              <option value="SLEEPER">Sleeper (SL)</option>
+              <option value="AC_3">AC 3 Tier (3A)</option>
+              <option value="AC_2">AC 2 Tier (2A)</option>
+              <option value="AC_1">AC 1st Class (1A)</option>
+            </select>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="page-head-row" style="margin-bottom:14px;">
+            <h3 class="section-title" style="flex:1; margin:0;">Passengers</h3>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:.78rem; color:var(--text-muted);">Max 6</span>
+              <button type="button" id="addPaxBtn" class="btn btn-outline btn-sm">
+                + Add Passenger
+              </button>
+            </div>
+          </div>
+
+          <div id="paxList"></div>
+
+          <div class="divider"></div>
+
+          <div class="summary-box" style="margin-bottom:18px;">
+            <div class="sum-row">
+              <span>Passengers</span>
+              <span id="spCount">0</span>
+            </div>
+            <div class="sum-row">
+              <span>Coach</span>
+              <span id="spCoach">—</span>
+            </div>
+            <div class="sum-row sum-total">
+              <span>Fare</span>
+              <span class="sum-amount" id="spFare">Select coach to see fare</span>
+            </div>
+          </div>
+
+          <div id="bookAlert"></div>
+
+          <button type="submit" id="bookBtn" class="btn btn-primary btn-full btn-xl">
+            <span class="btn-text">🎫 Confirm Booking</span>
+          </button>
+
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal" style="max-width:360px;">
+      <div class="modal-head">
+        <h2 class="modal-title">Logout</h2>
+        <button class="modal-close" data-close="logoutModal">✕</button>
+      </div>
+      <p style="padding:0 4px 16px; color:var(--text-muted);">Are you sure you want to log out?</p>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="logoutModal">Cancel</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <template id="tpl-pax-block">
+    <div class="pax-block">
+      <div class="pax-head">
+        <div class="pax-num">
+          <div class="pax-dot"></div>
+          <span data-f="label">Passenger 1</span>
+        </div>
+        <button type="button" class="btn btn-danger btn-xs remove-pax hidden">
+          Remove
+        </button>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-control pax-name"
+                 placeholder="Passenger name" required/>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Age</label>
+          <input type="number" class="form-control pax-age"
+                 min="1" max="120" placeholder="25" required/>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label class="form-label">Gender</label>
+          <select class="form-control pax-gender" required>
+            <option value="">Select</option>
+            <option value="MALE">Male</option>
+            <option value="FEMALE">Female</option>
+            <option value="OTHER">Other</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </template>
+  <!-- Logout Modal -->
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal" style="max-width:360px;">
+      <div class="modal-head">
+        <h2 class="modal-title">Logout</h2>
+        <button class="modal-close" data-close="logoutModal">✕</button>
+      </div>
+      <p style="padding:0 4px 16px; color:var(--text-muted);">Are you sure you want to log out?</p>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="logoutModal">Cancel</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/pages/book.js"></script>
+</body>
+</html>

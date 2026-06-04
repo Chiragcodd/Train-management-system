@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seats — Admin TrainMS</title>
+  <link rel="stylesheet" href="../css/variables.css"/>
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+</head>
+<body>
+  <div class="bg-noise"></div>
+  <div class="page-wrapper">
+
+    <nav class="navbar">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="brand-icon">🚂</div>
+        <span class="brand-name">Train<em>MS</em></span>
+        <span class="badge badge-blue" style="font-size:.65rem;">ADMIN</span>
+      </a>
+      <div class="navbar-actions">
+        <div id="navUser"></div>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm">Logout</button>
+      </div>
+    </nav>
+
+    <div class="with-sidebar">
+      <aside class="sidebar">
+        <div class="sidebar-label">Overview</div>
+        <a href="dashboard.html" class="sidebar-item"><span class="si-icon">📊</span>Dashboard</a>
+        <div class="sidebar-label">Management</div>
+        <a href="trains.html"   class="sidebar-item"><span class="si-icon">🚂</span>Trains</a>
+        <a href="stations.html" class="sidebar-item"><span class="si-icon">🚉</span>Stations</a>
+        <a href="seats.html"    class="sidebar-item active"><span class="si-icon">💺</span>Seats</a>
+        <div class="sidebar-label">Reports</div>
+        <a href="users.html"    class="sidebar-item"><span class="si-icon">👥</span>Users</a>
+        <a href="bookings.html" class="sidebar-item"><span class="si-icon">🎫</span>Bookings</a>
+      </aside>
+
+      <main class="main-area">
+        <div class="page-head-row">
+          <div>
+            <h1 class="page-title">Seats 💺</h1>
+            <p class="page-sub">Manage coach configurations and seat availability</p>
+          </div>
+          <button id="addSeatsBtn" class="btn btn-primary">+ Add Seats</button>
+        </div>
+
+        <!-- Train Selector -->
+        <!-- <div class="card" style="margin-bottom:18px;">
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" for="trainSel">Select Train to View Seats</label>
+            <select id="trainSel" class="form-control">
+              <option value="">— Choose a train —</option>
+            </select>
+          </div>
+        </div> -->
+        <!-- Train Selector -->
+<div class="card" style="margin-bottom:18px;">
+  <div class="form-row">
+
+    <div class="form-group" style="margin:0; flex:2;">
+      <label class="form-label" for="trainSel">Select Train</label>
+      <select id="trainSel" class="form-control">
+        <option value="">— Choose a train —</option>
+      </select>
+    </div>
+
+    <!-- ✅ NEW: Date picker add kiya -->
+    <div class="form-group" style="margin:0; flex:1;">
+      <label class="form-label" for="dateSel">Travel Date</label>
+      <input type="date" id="dateSel" class="form-control"/>
+    </div>
+
+    <!-- ✅ NEW: View button -->
+    <div class="form-group" style="margin:0; display:flex; align-items:flex-end;">
+      <button id="viewBtn" class="btn btn-primary" style="width:100%;">
+        View Seats
+      </button>
+    </div>
+
+  </div>
+</div>
+
+        <!-- Seats Display -->
+        <div id="seatsView">
+          <div class="empty">
+            <div class="empty-icon">💺</div>
+            <div class="empty-title">Select a train above</div>
+            <div class="empty-text">to view its seat configuration</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Add Seats Modal -->
+  <div class="modal-overlay" id="seatMod">
+    <div class="modal" style="max-width:560px; max-height:90vh;">
+      <div class="modal-head">
+        <h2 class="modal-title">Add Seats</h2>
+        <button class="modal-close" data-close="seatMod">✕</button>
+      </div>
+      <form id="seatForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="modTrain">
+            Train <span style="color:var(--error)">*</span>
+          </label>
+          <select id="modTrain" class="form-control" required>
+            <option value="">Select train</option>
+          </select>
+        </div>
+
+        <div class="page-head-row" style="margin-bottom:12px;">
+          <div class="section-title" style="flex:1; margin:0;">Coach Configuration</div>
+          <button type="button" id="addCoachBtn" class="btn btn-outline btn-sm">
+            + Add Coach
+          </button>
+        </div>
+
+        <div id="coachList"></div>
+
+        <div id="seatAlert"></div>
+
+        <div class="modal-foot">
+          <button type="button" class="btn btn-ghost" data-close="seatMod">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="sSaveBtn">
+            <span class="btn-text">Add Seats</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/pages/admin/seats.js"></script>
+</body>
+</html>

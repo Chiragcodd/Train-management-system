@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+  /* ── Core Palette ── */
+  --bg-base:       #0B0E1A;
+  --bg-surface:    #0D1120;
+  --bg-elevated:   #111827;
+  --bg-overlay:    #161D2F;
+  --bg-hover:      rgba(255,255,255,0.04);
+
+  /* ── Accent Blue ── */
+  --blue:          #4F8EF7;
+  --blue-light:    #7EB3FF;
+  --blue-dark:     #2B6FD9;
+  --blue-glow:     rgba(79,142,247,0.25);
+  --blue-subtle:   rgba(79,142,247,0.08);
+  --blue-border:   rgba(79,142,247,0.2);
+
+  /* ── Accent Mint ── */
+  --mint:          #00D4AA;
+  --mint-light:    #4DFFDA;
+  --mint-dark:     #009E7E;
+  --mint-subtle:   rgba(0,212,170,0.08);
+  --mint-border:   rgba(0,212,170,0.2);
+
+  /* ── Accent Purple ── */
+  --purple:        #8B5CF6;
+  --purple-subtle: rgba(139,92,246,0.08);
+
+  /* ── Semantic ── */
+  --success:       #00D4AA;
+  --success-subtle:rgba(0,212,170,0.1);
+  --error:         #F87171;
+  --error-subtle:  rgba(248,113,113,0.1);
+  --warning:       #FBBF24;
+  --warning-subtle:rgba(251,191,36,0.1);
+  --info:          #4F8EF7;
+
+  /* ── Text ── */
+  --text-primary:   #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted:     #475569;
+  --text-disabled:  #334155;
+
+  /* ── Borders ── */
+  --border:        rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.1);
+  --border-focus:  rgba(79,142,247,0.5);
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md:  0 4px 20px rgba(0,0,0,0.4);
+  --shadow-lg:  0 8px 40px rgba(0,0,0,0.5);
+  --shadow-blue:0 4px 20px rgba(79,142,247,0.25);
+  --shadow-mint:0 4px 20px rgba(0,212,170,0.2);
+
+  /* ── Radius ── */
+  --r-sm:  6px;
+  --r-md:  10px;
+  --r-lg:  14px;
+  --r-xl:  20px;
+  --r-2xl: 28px;
+
+  /* ── Typography ── */
+  --font:  'Plus Jakarta Sans', system-ui, sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+
+  /* ── Transitions ── */
+  --ease: all 0.2s cubic-bezier(0.4,0,0.2,1);
+}

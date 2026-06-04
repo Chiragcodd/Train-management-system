@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Bookings — TrainMS</title>
+  <link rel="stylesheet" href="css/variables.css"/>
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+</head>
+<body>
+  <div class="bg-noise"></div>
+  <div class="page-wrapper">
+
+    <nav class="navbar">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="brand-icon">🚂</div>
+        <span class="brand-name">Train<em>MS</em></span>
+      </a>
+      <div class="navbar-nav">
+        <a href="dashboard.html" class="nav-item"><span class="ni">🏠</span>Home</a>
+        <a href="search.html"    class="nav-item"><span class="ni">🔍</span>Search</a>
+        <a href="bookings.html"  class="nav-item active"><span class="ni">🎫</span>Bookings</a>
+        <a href="pnr.html"       class="nav-item"><span class="ni">📋</span>PNR Status</a>
+      </div>
+      <div class="navbar-actions">
+        <div id="navUser"></div>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm">Logout</button>
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="page-head-row">
+        <div>
+          <h1 class="page-title">My Bookings 🎫</h1>
+          <p class="page-sub">All your train journeys in one place</p>
+        </div>
+        <a href="search.html" class="btn btn-primary">+ New Booking</a>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active"  data-filter="ALL">All</button>
+        <button class="tab" data-filter="PENDING_PAYMENT">Pending Payment</button>
+        <button class="tab" data-filter="CONFIRMED">Confirmed</button>
+        <button class="tab" data-filter="WAITLISTED">Waitlisted</button>
+        <button class="tab" data-filter="CANCELLED">Cancelled</button>
+        <button class="tab" data-filter="EXPIRED">Expired</button>
+      </div>
+
+      <div id="list">
+        <div class="empty"><div class="spinner spinner-lg"></div></div>
+      </div>
+      <div id="pagination"></div>
+    </div>
+  </div>
+
+  <!-- Booking Card Template -->
+  <template id="tpl-booking-card">
+    <div class="booking-card">
+      <div class="booking-card-head">
+        <div>
+          <div class="pnr-code" data-f="pnr"></div>
+          <div class="pnr-date" data-f="booked-date"></div>
+        </div>
+        <span data-f="status"></span>
+      </div>
+      <div class="booking-body">
+        <div class="info-row">
+          <span class="info-key">Train</span>
+          <span class="info-val" data-f="train"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Route</span>
+          <span class="info-val" data-f="route"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Travel Date</span>
+          <span class="info-val" data-f="travel-date"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Coach</span>
+          <span class="info-val" data-f="coach"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Fare</span>
+          <span class="info-val" data-f="fare"
+                style="font-size:.8rem; color:var(--text-muted);"></span>
+        </div>
+
+        <!-- NEW: Per-passenger CNF/WL summary badges -->
+        <div class="info-row">
+          <span class="info-key">Passengers</span>
+          <span class="info-val" data-f="pax-summary"></span>
+        </div>
+
+        <div class="expiry-notice  alert alert-warning hidden"
+             style="margin-top:10px; padding:8px 12px; font-size:.8rem;"></div>
+        <div class="waitlist-notice alert alert-info hidden"
+             style="margin-top:10px; padding:8px 12px; font-size:.8rem;"></div>
+        <div class="refund-notice  alert alert-success hidden"
+             style="margin-top:10px; padding:8px 12px; font-size:.8rem;"></div>
+      </div>
+      <div class="booking-foot">
+        <span class="booking-amount" data-f="amount"></span>
+        <div style="display:flex; gap:7px; flex-wrap:wrap;">
+          <button class="btn btn-success btn-sm btn-pay hidden">💳 Pay Now</button>
+          <button class="btn btn-danger  btn-sm btn-cancel hidden">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Cancel Modal -->
+  <div class="modal-overlay" id="cancelMod">
+    <div class="modal" style="max-width:420px;">
+      <div class="modal-head">
+        <h2 class="modal-title">Cancel Booking</h2>
+        <button class="modal-close" data-close="cancelMod">✕</button>
+      </div>
+      <div class="alert alert-warning">⚠️ Are you sure you want to cancel?</div>
+      <div class="summary-box">
+        <div class="sum-row">
+          <span>Booking ID</span>
+          <span id="cId" style="font-family:var(--mono); color:var(--blue);"></span>
+        </div>
+        <div class="sum-row">
+          <span>Amount</span>
+          <span id="cAmt" style="font-family:var(--mono); font-weight:700;"></span>
+        </div>
+        <div class="sum-row">
+          <span>Refund</span>
+          <span id="cRefundNote" style="font-size:.78rem; color:var(--text-muted);"></span>
+        </div>
+        <div class="sum-row">
+          <span>Refund Policy</span>
+          <span style="font-size:.73rem; color:var(--text-muted);">
+            48h+ = 75% · 12h+ = 50% · 4h+ = 25% · &lt;4h = 0%
+          </span>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="cancelMod">Keep Booking</button>
+        <button class="btn btn-danger" id="confirmCancelBtn">
+          <span class="btn-text">Yes, Cancel</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logout Modal -->
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal" style="max-width:360px;">
+      <div class="modal-head">
+        <h2 class="modal-title">Logout</h2>
+        <button class="modal-close" data-close="logoutModal">✕</button>
+      </div>
+      <p style="padding:0 4px 16px; color:var(--text-muted);">Are you sure you want to log out?</p>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="logoutModal">Cancel</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/pages/bookings.js"></script>
+</body>
+</html>

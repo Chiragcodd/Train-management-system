@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trains — Admin TrainMS</title>
+
+  <link rel="stylesheet" href="../css/base.css"/>
+  <link rel="stylesheet" href="../css/components.css"/>
+  <link rel="stylesheet" href="../css/variables.css"/>
+
+  <style>
+    /* ── Day Pills ────────────────── */
+    .days-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .day-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: .8rem;
+      background: var(--bg-elevated);
+      user-select: none;
+      transition: background .15s, border-color .15s;
+    }
+
+    .day-pill:has(input:checked) {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
+    .day-pill input {
+      display: none;
+    }
+
+    /* ── Stop Box ─────────────────── */
+    .stop-box {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .stop-box-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .stop-label {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    .btn-remove-stop {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--danger, #e53935);
+      font-size: .8rem;
+      padding: 2px 8px;
+      border-radius: 6px;
+      transition: background .15s;
+    }
+
+    .btn-remove-stop:hover {
+      background: rgba(229,57,53,.1);
+    }
+
+    /* ── Train Card Extras ────────── */
+    .train-status-badge {
+      font-size: .72rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .status-ACTIVE   { background: #e8f5e9; color: #2e7d32; }
+    .status-INACTIVE { background: #fce4ec; color: #c62828; }
+    .status-DELAYED  { background: #fff3e0; color: #e65100; }
+    .status-CANCELLED  { background: #fff3e0; color: #af0808; }
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    /* ── Status Modal ─────────────── */
+    .status-btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .status-btn-row button {
+      flex: 1;
+      min-width: 100px;
+    }
+
+    /* ── Form 3-col ───────────────── */
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .form-row-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="bg-noise"></div>
+
+<div class="page-wrapper">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="dashboard.html" class="navbar-brand">
+      <div class="brand-icon">🚂</div>
+      <span class="brand-name">Train<em>MS</em></span>
+      <span class="badge badge-blue">ADMIN</span>
+    </a>
+    <div class="navbar-actions">
+      <div id="navUser"></div>
+      <button id="logoutBtn" class="btn btn-ghost btn-sm">Logout</button>
+    </div>
+  </nav>
+
+  <div class="with-sidebar">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-label">Overview</div>
+      <a href="dashboard.html" class="sidebar-item">📊 Dashboard</a>
+
+      <div class="sidebar-label">Management</div>
+      <a href="trains.html"   class="sidebar-item active">🚂 Trains</a>
+      <a href="stations.html" class="sidebar-item">🚉 Stations</a>
+      <a href="seats.html"    class="sidebar-item">💺 Seats</a>
+
+      <div class="sidebar-label">Reports</div>
+      <a href="users.html"    class="sidebar-item">👥 Users</a>
+      <a href="bookings.html" class="sidebar-item">🎫 Bookings</a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-area">
+
+      <div class="page-head-row">
+        <div>
+          <h1 class="page-title">Train Management 🚂</h1>
+          <p class="page-sub">Add, update and manage train routes</p>
+        </div>
+        <button id="addTrainBtn" class="btn btn-primary">+ Add Train</button>
+      </div>
+
+      <div id="trainList">
+        <div class="empty"><div class="spinner spinner-lg"></div></div>
+      </div>
+
+      <div id="pagination"></div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ADD / EDIT TRAIN MODAL
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="trainMod">
+  <div class="modal" style="max-width:820px; max-height:92vh; overflow-y:auto;">
+
+    <div class="modal-head">
+      <div class="modal-title" id="tModTitle">Add Train</div>
+      <button class="modal-close" data-close="trainMod">✕</button>
+    </div>
+
+    <form id="trainForm" novalidate>
+
+      <!-- RUNNING DAYS -->
+      <div class="form-group">
+        <label class="form-label">Running Days</label>
+        <div class="days-wrap" id="daysWrap"></div>
+      </div>
+
+      <!-- TRAIN TYPE -->
+      <div class="form-group">
+        <label class="form-label">Train Type</label>
+        <select id="tTrainType" class="form-control" required>
+          <option value="">Select Type</option>
+        </select>
+      </div>
+
+      <!-- NAME + NUMBER -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Train Name</label>
+          <input id="tName" class="form-control" placeholder="e.g. Rajdhani Express" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Train Number</label>
+          <input id="tNum" class="form-control" maxlength="5" pattern="[0-9]{5}"
+                 placeholder="12301" required />
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- ROUTE STOPS -->
+      <div class="page-head-row" style="margin-bottom:10px;">
+        <div class="section-title">Route Stops</div>
+        <button type="button" id="addStopBtn" class="btn btn-outline btn-sm">+ Add Stop</button>
+      </div>
+
+      <div id="stopList"></div>
+
+      <div id="tAlert"></div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close="trainMod">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="tSaveBtn">Save Train</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     DELETE CONFIRM MODAL
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="tDelMod">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-head">
+      <div class="modal-title">Delete Train</div>
+      <button class="modal-close" data-close="tDelMod">✕</button>
+    </div>
+    <div class="alert alert-error" style="margin:0 0 4px;">
+      ⚠️ This action is permanent and cannot be undone.
+    </div>
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:4px;">
+      Trains with active bookings cannot be deleted.
+    </p>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="tDelMod">Cancel</button>
+      <button class="btn btn-danger" id="tDelBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     STATUS CHANGE MODAL
+════════════════════════════════════════════ -->
+<div class="modal-overlay" id="tStatusMod">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-head">
+      <div class="modal-title">Change Train Status</div>
+      <button class="modal-close" data-close="tStatusMod">✕</button>
+    </div>
+    <p style="font-size:.9rem;margin-bottom:8px;">
+      Select new status for: <strong id="sTrainName">—</strong>
+    </p>
+    <!-- <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:4px;">
+      Deactivating a train with future bookings is not allowed.
+    </p> -->
+    <div class="status-btn-row">
+      <button class="btn btn-primary"  id="sBtnActive">✅ ACTIVE</button>
+      <button class="btn btn-danger"   id="sBtnInactive">🚫 INACTIVE</button>
+      <button class="btn btn-outline"  id="sBtnDelayed">⏳ DELAYED</button>
+      <button class="btn btn-ghost"    id="sBtnCancelled">❌ CANCELLED</button>
+    </div>
+    <div id="sAlert" style="margin-top:10px;"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="tStatusMod">Close</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/pages/admin/trains.js"></script>
+
+</body>
+</html>

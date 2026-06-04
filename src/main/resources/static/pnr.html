@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PNR Status — TrainMS</title>
+  <link rel="stylesheet" href="css/variables.css"/>
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+</head>
+<body>
+  <div class="bg-noise"></div>
+  <div class="page-wrapper">
+
+    <nav class="navbar">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="brand-icon">🚂</div>
+        <span class="brand-name">Train<em>MS</em></span>
+      </a>
+      <div class="navbar-nav">
+        <a href="dashboard.html" class="nav-item"><span class="ni">🏠</span>Home</a>
+        <a href="search.html"    class="nav-item"><span class="ni">🔍</span>Search</a>
+        <a href="bookings.html"  class="nav-item"><span class="ni">🎫</span>Bookings</a>
+        <a href="pnr.html"       class="nav-item active"><span class="ni">📋</span>PNR Status</a>
+      </div>
+      <div class="navbar-actions">
+        <div id="navUser"></div>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm">Logout</button>
+      </div>
+    </nav>
+
+    <div class="container-sm">
+      <section class="search-hero fade-up" style="margin-top:16px;">
+        <h2 class="search-hero-title">PNR Status 📋</h2>
+        <p class="search-hero-sub">Enter your PNR number to track your booking</p>
+        <div style="display:flex; gap:10px; margin-top:18px;">
+          <input id="pnrInput" class="form-control"
+                 placeholder="e.g. PNR1234567890"
+                 style="text-transform:uppercase; font-family:var(--mono);
+                        font-size:.95rem; letter-spacing:.05em;"/>
+          <button id="checkBtn" class="btn btn-primary">
+            <span class="btn-text">Check</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="pnrResult" class="hidden" style="margin-top:18px;">
+        <div class="card card-accent">
+          <div style="display:flex; justify-content:space-between;
+                      align-items:flex-start; margin-bottom:18px;">
+            <div>
+              <div id="pPnr"
+                   style="font-family:var(--mono); font-size:1.4rem;
+                          font-weight:700; color:var(--blue); letter-spacing:.05em;"></div>
+              <div id="pBooked"
+                   style="font-size:.75rem; color:var(--text-muted); margin-top:3px;"></div>
+            </div>
+            <span id="pStatus"></span>
+          </div>
+
+          <div class="route-row" style="margin:16px 0;">
+            <div class="route-stn">
+              <div class="stn-code" id="pFrom"></div>
+            </div>
+            <div class="route-mid">
+              <div class="route-track"></div>
+              <div class="route-stops">Direct</div>
+            </div>
+            <div class="route-stn">
+              <div class="stn-code" id="pTo"></div>
+            </div>
+          </div>
+
+          <div class="summary-box" style="margin-bottom:14px;">
+            <div class="sum-row">
+              <span>Train</span>
+              <span id="pTrain"></span>
+            </div>
+            <div class="sum-row">
+              <span>Travel Date</span>
+              <span id="pDate"></span>
+            </div>
+            <div class="sum-row">
+              <span>Coach</span>
+              <span id="pCoach"></span>
+            </div>
+            <div class="sum-row">
+              <span>Fare Info</span>
+              <span id="pFare" style="font-size:.8rem; color:var(--text-muted);"></span>
+            </div>
+            <div class="sum-row">
+              <span>Passengers</span>
+              <!-- JS will inject CNF/WL badge counts here -->
+              <span id="pPaxCount"></span>
+            </div>
+            <div class="sum-row sum-total">
+              <span>Total Amount</span>
+              <span class="sum-amount" id="pAmount"></span>
+            </div>
+          </div>
+
+          <!-- Mixed / all-WL notice -->
+          <div id="pWlNotice" class="alert alert-info hidden"
+               style="margin-bottom:14px; font-size:.82rem;"></div>
+
+          <!-- Passenger Table — now has Status column -->
+          <div id="paxSection" class="hidden">
+            <h3 class="section-title">Passengers</h3>
+            <div class="table-box">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Seat</th>
+                    <th>Status</th>   <!-- NEW: per-passenger CNF / WL -->
+                    <th>Fare</th>
+                  </tr>
+                </thead>
+                <tbody id="paxTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="pRefundNotice" class="alert alert-success hidden"
+               style="margin-top:14px;"></div>
+        </div>
+      </div>
+
+      <div id="notFound" class="hidden" style="margin-top:18px;">
+        <div class="card" style="text-align:center; padding:36px;">
+          <div style="font-size:2.5rem; margin-bottom:10px;">🔍</div>
+          <h3 style="font-size:1rem; font-weight:600; margin-bottom:6px;">PNR Not Found</h3>
+          <p id="notFoundMsg" style="font-size:.875rem; color:var(--text-muted);"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Template: Passenger Row — Status column added -->
+  <template id="tpl-pax-row">
+    <tr>
+      <td data-f="name"></td>
+      <td data-f="age"></td>
+      <td data-f="gender"></td>
+      <td><span class="badge badge-blue" data-f="seat"></span></td>
+      <td data-f="pax-status"></td>   <!-- NEW -->
+      <td data-f="fare"></td>
+    </tr>
+  </template>
+
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal" style="max-width:360px;">
+      <div class="modal-head">
+        <h2 class="modal-title">Logout</h2>
+        <button class="modal-close" data-close="logoutModal">✕</button>
+      </div>
+      <p style="padding:0 4px 16px; color:var(--text-muted);">Are you sure you want to log out?</p>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="logoutModal">Cancel</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/pages/pnr.js"></script>
+</body>
+</html>

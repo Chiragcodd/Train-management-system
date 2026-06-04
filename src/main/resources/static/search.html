@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Trains — TrainMS</title>
+  <link rel="stylesheet" href="css/variables.css"/>
+  <link rel="stylesheet" href="css/base.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <style>
+    /* ── Station Autocomplete ── */
+    .station-wrap { position: relative; }
+
+    .station-input-row {
+      display: flex;
+      align-items: center;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .station-input-row:focus-within { border-color: var(--blue); }
+
+    .station-input-row input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      padding: 10px 14px;
+      font-size: .9rem;
+      color: var(--text-primary);
+      font-family: inherit;
+    }
+
+    .station-code-badge {
+      font-family: var(--mono);
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--blue);
+      background: var(--blue-subtle);
+      border-left: 1px solid var(--border);
+      padding: 0 12px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      min-width: 52px;
+    }
+
+    .station-clear {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      padding: 0 10px;
+      font-size: 1rem;
+      display: none;
+    }
+    .station-clear.visible { display: flex; align-items: center; }
+
+    .autocomplete-list {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0; right: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      z-index: 9999;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+    .autocomplete-list.open { display: block; }
+
+    .ac-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border);
+      transition: background .15s;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover, .ac-item.active { background: var(--bg-overlay); }
+
+    .ac-code {
+      font-family: var(--mono);
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--blue);
+      background: var(--blue-subtle);
+      padding: 2px 7px;
+      border-radius: 4px;
+      min-width: 46px;
+      text-align: center;
+    }
+    .ac-name { font-size: .85rem; font-weight: 600; color: var(--text-primary); }
+    .ac-city { font-size: .73rem; color: var(--text-muted); margin-left: auto; }
+
+    .ac-empty {
+      padding: 14px;
+      text-align: center;
+      font-size: .82rem;
+      color: var(--text-muted);
+    }
+    .ac-loading {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .82rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-noise"></div>
+  <div class="page-wrapper">
+
+    <nav class="navbar">
+      <a href="dashboard.html" class="navbar-brand">
+        <div class="brand-icon">🚂</div>
+        <span class="brand-name">Train<em>MS</em></span>
+      </a>
+      <div class="navbar-nav">
+        <a href="dashboard.html" class="nav-item"><span class="ni">🏠</span>Home</a>
+        <a href="search.html"    class="nav-item active"><span class="ni">🔍</span>Search</a>
+        <a href="bookings.html"  class="nav-item"><span class="ni">🎫</span>Bookings</a>
+        <a href="pnr.html"       class="nav-item"><span class="ni">📋</span>PNR Status</a>
+      </div>
+      <div class="navbar-actions">
+        <div id="navUser"></div>
+        <button id="logoutBtn" class="btn btn-ghost btn-sm">Logout</button>
+      </div>
+    </nav>
+
+    <div class="container">
+      <section class="search-hero fade-up">
+        <h2 class="search-hero-title">Search Trains 🔍</h2>
+        <p class="search-hero-sub">Type station name or code to search</p>
+
+        <div class="search-grid" style="margin-top:20px;">
+
+          <!-- FROM station -->
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">From Station</label>
+            <div class="station-wrap" id="fromWrap">
+              <div class="station-input-row">
+                <input id="fromInput" autocomplete="off" placeholder="e.g. Mumbai or NDLS"/>
+                <button class="station-clear" id="fromClear" title="Clear">✕</button>
+                <div class="station-code-badge" id="fromBadge">—</div>
+              </div>
+              <div class="autocomplete-list" id="fromList"></div>
+              <input type="hidden" id="fromCode"/>
+            </div>
+          </div>
+
+          <!-- TO station -->
+          <div class="form-group" style="margin:0;">
+            <label class="form-label">To Station</label>
+            <div class="station-wrap" id="toWrap">
+              <div class="station-input-row">
+                <input id="toInput" autocomplete="off" placeholder="e.g. Delhi or BCT"/>
+                <button class="station-clear" id="toClear" title="Clear">✕</button>
+                <div class="station-code-badge" id="toBadge">—</div>
+              </div>
+              <div class="autocomplete-list" id="toList"></div>
+              <input type="hidden" id="toCode"/>
+            </div>
+          </div>
+
+          <!-- Travel Date -->
+          <div class="form-group" style="margin:0;">
+            <label class="form-label" for="travelDate">Travel Date</label>
+            <input type="date" id="travelDate" class="form-control"/>
+          </div>
+
+          <button id="searchBtn" class="btn btn-primary btn-lg">
+            <span class="btn-text">Search</span>
+          </button>
+        </div>
+      </section>
+
+      <div id="resultsArea" style="margin-top:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Logout Modal -->
+  <div class="modal-overlay" id="logoutModal">
+    <div class="modal" style="max-width:360px;">
+      <div class="modal-head">
+        <h2 class="modal-title">Logout</h2>
+        <button class="modal-close" data-close="logoutModal">✕</button>
+      </div>
+      <p style="padding:0 4px 16px; color:var(--text-muted);">Are you sure you want to log out?</p>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" data-close="logoutModal">Cancel</button>
+        <button class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/pages/search.js"></script>
+</body>
+</html> 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,12 @@ public class User {
 
     @Column(name = "mobile_number")
     private String mobileNumber;
+
+    @Column(name = "otp_code")
+    private String otpCode;
+
+    @Column(name = "otp_expriry")
+    private LocalDateTime otpExpiry;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

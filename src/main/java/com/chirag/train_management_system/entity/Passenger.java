@@ -30,10 +30,6 @@ public class Passenger {
     @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
-    /**
-     * CONFIRMED passengers ka seat assigned hota hai.
-     * WAITLISTED passengers ka seat = null — milega jab koi CONFIRMED cancel kare.
-     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "seat_id")
     private Seat seat;

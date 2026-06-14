@@ -151,6 +151,9 @@ const Api = {
 
   login:    body => Api.post('/api/auth/login', body),
   register: body => Api.post('/api/users/register', body),
+  changePassword: (id, body)  => Api.put(`/api/users/${id}/change-password`, body),
+  sendOtp:        body        => Api.post('/api/users/forgot-password/send-otp', body),
+  resetPassword:  body        => Api.post('/api/users/forgot-password/reset', body),
 
   getUserById:  id      => Api.get(`/api/users/${id}`),
   getAllUsers:  (p = 0) => Api.get(`/api/users?page=${p}&size=10`),

@@ -61,12 +61,15 @@ public class SecurityConfig {
                     "/bookings.html", "/pnr.html",
                     "/admin/dashboard.html", "/admin/trains.html",
                     "/admin/stations.html", "/admin/seats.html",
-                    "/admin/users.html", "/admin/bookings.html",
+                    "/admin/users.html", "/admin/bookings.html","/forgot-password.html",
+                    "/profile.html",
                     "/css/**", "/js/**", "/error"
                 ).permitAll()
                 .requestMatchers(
                     "/api/auth/**",
-                    "/api/users/register"
+                    "/api/users/register",
+                    "/api/users/forgot-password/send-otp",
+                    "/api/users/forgot-password/reset"
                 ).permitAll()
                 .anyRequest().authenticated()
             )

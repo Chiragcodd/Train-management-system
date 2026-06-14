@@ -2,6 +2,7 @@ package com.chirag.train_management_system.controller;
 
 import com.chirag.train_management_system.dto.LoginRequestDto;
 import com.chirag.train_management_system.dto.LoginResponseDto;
+import com.chirag.train_management_system.dto.UserResponseDto;
 import com.chirag.train_management_system.entity.User;
 import com.chirag.train_management_system.security.JwtUtil;
 import com.chirag.train_management_system.service.UserService;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,5 +34,11 @@ public class AuthController {
         String role = user.getRoles().isEmpty() ? "" : user.getRoles().get(0).getName();
 
         return ResponseEntity.ok(new LoginResponseDto(token, user.getUsername(), role));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<UserResponseDto> getMe(Authentication authentication) {
+        User user = userService.findByUsername(authentication.getName());
+        return ResponseEntity.ok(userService.toDto(user));
     }
 }

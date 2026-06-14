@@ -14,8 +14,6 @@ public class RouteRequestDto {
     @Min(value = 1, message = "Stop order must start from 1")
     private int stopOrder;
 
-    // ✅ FIXED: String → LocalTime (Route entity ke saath match)
-    // Format: "HH:mm" → JSON mein "14:30" dena hoga
     @NotNull(message = "Arrival time is required")
     private LocalTime arrivalTime;
 
